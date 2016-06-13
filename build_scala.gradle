@@ -1,0 +1,43 @@
+
+// 基本パッケージとModオブジェクト
+// アセットディレクトリ、mcmod.info、デフォルトの言語ファイル( en_US.lang )を生成する
+task startupScalaProject( dependsOn: [ makeBasePackage, makeAssetsDir, genMcmodInfo ] ) {
+  ext {
+    modObjectFile = { makeBasePackage.paths().collect { project.file( "$it/${ settings.mod.internalName }.scala" ) } }
+    languageDir = { makeAssetsDir.paths().collect { project.file( "$it/lang" ) } }
+  }
+
+  onlyIf { settings.mod.internalName.trim() }
+
+  outputs.files project.files( modObjectFile() )
+  outputs.files project.files( languageDir() )
+
+  doLast {
+    modObjectFile()*.text =
+      """|package ${ settings.mod.basePackage }
+         |
+         |
+         |import net.minecraftforge.fml.common.Mod
+         |
+         |
+         |@Mod( modid       = ${ settings.mod.internalName }.ID,
+         |      name        = ${ settings.mod.internalName }.NAME,
+         |      version     = ${ settings.mod.internalName }.VERSION,
+         |      modLanguage = \"scala\" )
+         |object ${ settings.mod.internalName } {
+         |
+         |  final val ID       = \"@modid@\"
+         |  final val NAME     = \"${ settings.mod.name }\"
+         |  final val VERSION  = \"@version@\"
+         |
+         |}
+         |""".stripMargin()
+
+    languageDir().each { dir ->
+      project.mkdir( dir )
+
+      def file = project.file( "$dir/en_US.lang" )
+      file.createNewFile()
+    }
+  }
+}

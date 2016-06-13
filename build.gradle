@@ -1,0 +1,209 @@
+// TODO: アーカイブ生成の挙動を改善
+
+
+// ビルドスクリプトの実行
+buildscript {
+  settings.buildscript.repositories.each { function ->
+    function.delegate = repositories
+    function.call()
+  }
+  settings.buildscript.dependencies.each { function ->
+    function.delegate = dependencies
+    function.call()
+  }
+}
+
+// プラグインのロードを行う
+settings.build.plugins.each { apply plugin: it }
+
+
+// Modの基本設定
+group            = settings.build.jar.groupId
+archivesBaseName = settings.build.jar.baseName
+version          = settings.mod.version
+
+// Forgeの基本設定
+minecraft {
+  version          = settings.forge.version
+  mappings         = settings.forge.mappings
+  runDir           = settings.forge.runDirectory
+  makeObfSourceJar = settings.build.jar.makeArchive.source
+}
+
+// コンパイルタスクの設定
+tasks.withType( AbstractCompile ) {
+  sourceCompatibility = settings.build.languageLevel
+  targetCompatibility = settings.build.languageLevel
+
+  if ( hasProperty( 'options' ) )
+    options.encoding = settings.build.encoding
+}
+
+// 依存関係解決に関する設定
+settings.build.repositories.each { function ->
+  function.delegate = repositories
+  function.call()
+}
+settings.build.dependencies.each { function ->
+  function.delegate = dependencies
+  function.call()
+}
+
+
+// jarマニフェストファイルの設定
+jar.manifest.attributes = settings.build.jar.manifest.attributes
+
+
+
+
+
+import groovy.json.JsonBuilder
+import org.apache.tools.ant.filters.ReplaceTokens
+import net.minecraftforge.gradle.user.TaskSourceCopy
+
+// 独自のタスク定義を行う
+{ ->
+
+  def modLanguage       = settings.build.language
+  def cptlzdModLanguage = modLanguage.capitalize()
+
+  sourceSets.all { sourceSet ->
+    def sourceSetName       = sourceSet.name
+    def cptlzdSourceSetName = sourceSetName.capitalize()
+
+    // ソースコピータスクが定義されていなければ新規に定義する
+    def sourceCopyTaskName  = "source$cptlzdSourceSetName$cptlzdModLanguage"
+    if ( !tasks.findByPath( sourceCopyTaskName ) ) {
+      task "$sourceCopyTaskName"( type: TaskSourceCopy ) {
+        source = sourceSet[ modLanguage ]
+        output = project.file( "$buildDir/sources/$sourceSetName/$modLanguage" )
+      }
+
+      def sourceCopyTask = tasks."$sourceCopyTaskName"
+      def compileTask    = tasks."${ sourceSet.getCompileTaskName( modLanguage ) }"
+
+      compileTask.dependsOn sourceCopyTask
+      compileTask.source = project.fileTree( sourceCopyTask.output )
+    }
+
+    if ( sourceSetName == 'main' ) {
+      // ソースコードディレクトリを作成する
+      task makeMainSourceDirs {
+        ext.sourceDirs = sourceSet.allSource.srcDirs
+
+        outputs.files project.files( sourceDirs )
+
+        doLast { sourceDirs.each project.&mkdir }
+      }
+
+      // 基本パッケージを作成する
+      task makeBasePackage( dependsOn: makeMainSourceDirs ) {
+        ext {
+          destinationDirs = sourceSet."$modLanguage".srcDirs
+          paths = {
+            def basePackage = settings.mod.basePackage.replace( '.', '/' )
+            destinationDirs.collect { project.file( "$it/$basePackage" ) }
+          }
+        }
+
+        outputs.files project.files( paths() )
+
+        doLast { paths().each project.&mkdir }
+      }
+
+      // Modのアセットディレクトリを作成する
+      task makeAssetsDir( dependsOn: makeMainSourceDirs ) {
+        ext {
+          destinationDirs = sourceSet.resources.srcDirs
+          paths = { destinationDirs.collect { project.file( "$it/assets/${ settings.mod.id }" ) } }
+        }
+
+        outputs.files project.files( paths() )
+
+        doLast { paths().each project.&mkdir }
+      }
+
+      // mcmod.infoファイルを生成する
+      task genMcmodInfo( dependsOn: makeMainSourceDirs ) {
+        ext {
+          destinationDirs = sourceSet.resources.srcDirs
+          paths = { destinationDirs.collect { project.file( "$it/mcmod.info" ) } }
+        }
+
+        inputs.property 'info', settings.mod.info
+
+        outputs.files project.files( paths() )
+
+        doLast {
+          def json = new JsonBuilder()
+          def data = settings.mod.info()
+
+          data += [ modid: '@modid@', version: '@version@' ]
+          json( [ data ] )
+          def text = json.toPrettyString()
+
+          paths()*.text = text
+        }
+      }
+    }
+
+  }
+
+
+  def documentTaskName = "${ modLanguage }doc"
+  if ( tasks.findByPath( documentTaskName ) ) {
+    // 言語に対応するドキュメント生成タスクが存在する場合、
+    // 専用のアーカイブ生成タスクを新規に定義する
+
+    def documentTask = tasks."$documentTaskName"
+    def docJarTaskName = "${ documentTaskName }Jar"
+
+    task "$docJarTaskName"( type: Jar, dependsOn: documentTask ) {
+      classifier = documentTaskName
+      from documentTask.destinationDir
+    }
+
+    if ( settings.build.jar.makeArchive.document )
+      artifacts.archives tasks."$docJarTaskName"
+  }
+  else {
+    // 言語に対応するドキュメント生成タスクが存在しない場合、
+    // 汎用のアーカイブ生成タスクを新規に定義する
+
+    task javadocJar( type: Jar, dependsOn: javadoc ) {
+      classifier = 'javadoc'
+      from javadoc.destinationDir
+    }
+
+    javadoc.source = sourceSets.main.allJava
+
+    if ( settings.build.jar.makeArchive.document )
+      artifacts.archives javadocJar
+  }
+
+
+  // 言語固有のタスク定義をロードする
+  def build_for_language = project.file( "build_${ modLanguage }.gradle" )
+  if ( build_for_language.exists() )
+    apply from: build_for_language
+
+}()
+
+
+// リソースファイルのコピー時に変数展開を行う
+processResources {
+  inputs.property 'modid',   settings.mod.id
+  inputs.property 'version', settings.mod.version
+
+  from( sourceSets.main.resources.srcDirs ) {
+    include 'mcmod.info'
+    filter( ReplaceTokens, tokens: replaceTokens() )
+  }
+
+  from( sourceSets.main.resources.srcDirs ) {
+    exclude 'mcmod.info'
+  }
+}
+
+// ソースコードコピー時の変数展開で参照される辞書を追加
+tasks.withType( TaskSourceCopy )*.replace( replacements() )

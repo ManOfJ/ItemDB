@@ -1,0 +1,34 @@
+
+project.configure( settings.forge ) {
+  version = '1.9.4-12.17.0.1940'
+  mappings = 'snapshot_20160518'
+}
+
+project.configure( settings.mod ) {
+  basePackage = 'com.manofj.minecraft.moj_itemdb'
+  id          = 'moj_itemdb'
+  name        = 'ItemDB'
+  version     = '1.9.4-1'
+  homepage    = 'http://manofj.com/minecraft'
+  updateJson  = 'http://manofj.com/minecraft/update?v=ItemDB'
+  authors     = [ 'Man of J' ]
+}
+
+project.configure( settings.build ) {
+  language = 'scala'
+
+  repositories << {
+    delegate.mavenCentral()
+    delegate.maven { url 'http://moj-files.x0.com/maven/' }
+  }
+  dependencies << {
+    delegate.compile 'com.h2database:h2:1.4.191'
+    delegate.compile 'com.typesafe.slick:slick_2.11:2.1.0'
+    delegate.compile 'org.slf4j:slf4j-nop:1.6.4'
+    delegate.compile 'com.manofj.minecraft.moj_commons:mc_commons:1.9.4-0.0.1'
+  }
+
+  jar.manifest.attributes = [
+    DependsJson: 'moj_dependencies.json'
+  ]
+}

@@ -1,0 +1,247 @@
+
+// Gradleの設定が完了した後の処理
+// 独自の設定項目を追加し､ユーザの設定した値を反映する
+gradle.settingsEvaluated {
+  gradle.rootProject {
+    ext {
+      // 独自の設定項目を追加
+      settings = [
+        // 独自定義のタスクにより出力されるファイルの改行コードを指定する
+        // 有効な改行コード一覧 [ '\r', '\n', '\r\n', System.properties[ 'line.separator' ] ]
+        lineSeparator: '\n',
+
+        // Minecraft Forge関連の設定
+        forge: [
+          // 開発に使用するMinecraft Forgeのバージョン
+          // 必須項目
+          version: '',
+
+          // 開発環境での実行ディレクトリ
+          runDirectory: 'run',
+
+          // マッパーのバージョン
+          // 必須項目
+          mappings: '',
+
+          // Forge Gradleが定義するソースアーカイブ出力タスクを実行するか否か
+          makeSourceJar: false
+        ],
+
+        // Gradleプロジェクトの依存関係解決に関する設定
+        buildscript: [
+          // 依存関係解決時に参照するリポジトリの設定を行うクロージャ一覧
+          repositories: [
+            { delegate.jcenter() },
+            { delegate.maven {
+              name = 'forge'
+              url  = 'http://files.minecraftforge.net/maven'
+            } }
+          ],
+
+          // 依存するプラグインの設定を行うクロージャ一覧
+          dependencies: [
+            { delegate.classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT' }
+          ]
+        ],
+
+        // Modに関する情報･設定
+        mod: [
+          // Modが属する基本パッケージ
+          // 必須項目
+          basePackage: '',
+
+          // インターナルなModの名称
+          // JMV言語のクラス名として使用できる文字列でなくてはいけない
+          // 必須項目ではないが､指定しないとこの値を参照するタスクが動作しなくなる
+          internalName: '',
+
+          // Modを識別するための文字列
+          // 必須項目
+          id: '',
+
+          // エクスターナルなModの名称
+          // 必須項目
+          name: '',
+
+          // 説明文
+          description: '',
+
+          // バージョン
+          // 必須項目
+          version: '',
+
+          // 開発に使用するMinecraft Forgeのバージョン
+          // 設定しない場合はsettings.forge.versionが参照される
+          // 必須項目
+          mcversion: '',
+
+          // Mod公開場所のURL
+          homepage: '',
+
+          // アップデート確認用jsonファイルのURL
+          // jsonの書式に関しては下記URLを参照
+          // https://gist.github.com/LexManos/7aacb9aa991330523884
+          updateJson: '',
+
+          // 開発者一覧
+          authors: [],
+
+          // クレジット表記
+          credits: '',
+
+          // ロゴファイルへのパス
+          logo: '',
+
+          // Modのイメージファイルへのパス一覧
+          screenshots: [],
+
+          // 依存しているModの一覧
+          dependencies: [],
+
+          // mcmod.infoの内容となるMapオブジェクトを返すクロージャ
+          info: { [
+            modid:        settings.mod.id,
+            name:         settings.mod.name,
+            description:  settings.mod.description,
+            version:      settings.mod.version,
+            mcversion:    settings.mod.mcversion,
+            url:          settings.mod.homepage,
+            updateUrl:    settings.mod.updateJson,
+            authorList:   settings.mod.authors,
+            credits:      settings.mod.credits,
+            logoFile:     settings.mod.logo,
+            screenshots:  settings.mod.screenshots,
+            dependencies: settings.mod.dependencies
+          ] }
+        ],
+
+        // ビルド関連の設定
+        build: [
+          // 開発に使用するJVM言語を指定する
+          // 有効な言語一覧 [ 'java', 'scala', 'groovy', 'kotlin' ]
+          // 必須項目
+          language: '',
+
+          // コンパイルされるファイルのJava言語レベルを指定する
+          languageLevel: 1.6,
+
+          // ソースファイルのエンコーディングを指定する
+          encoding: 'utf8',
+
+          // 開発に使用するプラグインを設定する
+          plugins: [
+            'net.minecraftforge.gradle.forge'
+          ],
+
+          // Modの依存関係解決時に参照されるリポジトリの設定を行うクロージャ一覧
+          repositories: [],
+
+          // Modが依存するライブラリの設定を行うクロージャ一覧
+          // スコープに関しては以下のURLを参照
+          // http://www.techscore.com/tech/Java/ApacheJakarta/Maven/3/#maven-3-1-1
+          dependencies: [],
+
+          // プロジェクトにより出力されるjarファイル関連の設定
+          jar: [
+            // jarファイルのグループID
+            // 設定しない場合はsettings.mod.basePackageが参照される
+            groupId: '',
+
+            // jarファイルのベース名称
+            // ファイル名に使用できない文字を含んではいけない
+            // 設定しない場合はsettings.mod.nameが参照される
+            baseName: '',
+
+            // Modのマニフェストファイル関連の設定
+            manifest: [
+              // メインアトリビュートの内容
+              // 例)
+              // attributes: [ FMLCorePlugin: 'com.example.ExampleLoadingPlugin' ]
+              attributes: [:]
+            ],
+
+            // アーカイブ出力に関する設定
+            makeArchive: [
+              // ソースコード･アーカイブを出力する
+              source: false,
+
+              // ドキュメント･アーカイブを出力する
+              document: false
+            ]
+          ]
+        ]
+      ]
+    }
+
+
+    // ユーザ設定をロードする
+    apply from: 'properties.gradle'
+
+
+    // システム関連の設定項目に対するアサーション
+    assert [ '\r', '\n', '\r\n', System.properties[ 'line.separator' ] ].contains( settings.lineSeparator )
+
+
+    // Minecraft Forge関連の設定項目に対するアサーション
+    assert settings.forge.version.trim()
+    assert settings.forge.mappings.trim()
+
+
+    // Mod情報･設定項目に対するアサーション
+    assert settings.mod.basePackage.trim()
+    assert settings.mod.id.trim()
+    assert settings.mod.name.trim()
+    assert settings.mod.version.trim()
+
+    if ( !settings.mod.mcversion.trim() )
+      settings.mod.mcversion = settings.forge.version
+    assert settings.mod.mcversion.trim()
+
+
+    // ビルド関連項目に対するアサーション
+    assert [ 'java', 'scala', 'groovy', 'kotlin' ].contains( settings.build.language )
+
+    if ( !settings.build.jar.groupId.trim() )
+      settings.build.jar.groupId = settings.mod.basePackage
+    assert settings.build.jar.groupId.trim()
+
+    if ( !settings.build.jar.baseName.trim() )
+      settings.build.jar.baseName = settings.mod.name
+    assert settings.build.jar.baseName.trim()
+
+
+    // 改行コードの変更
+    System.properties[ 'line.separator' ] = settings.lineSeparator
+
+    // 言語固有の設定をロード
+    def settings_for_language = new File( "settings_${ settings.build.language }.gradle" )
+    if ( settings_for_language.exists() )
+      apply from: settings_for_language
+
+  }
+
+}
+
+
+// プロジェクト評価前に必要な処理
+gradle.beforeProject { project ->
+  project.ext {
+    // プロジェクト共用のテンポラリフォルダ
+    temporaryDir = project.file( "${ project.buildDir }/tmp" )
+
+    // リソースファイルコピー時の変数展開で参照される辞書を返すクロージャ
+    replaceTokens = {
+      settings.mod.info().subMap( [
+        'modid', 'version'
+      ] )
+    }
+
+    // ソースコードコピー時の変数展開で参照される辞書を返すクロージャ
+    replacements = {
+      replaceTokens().collectEntries { [
+        // 不具合回避のためGStringはStringに変換する
+        ( "@${ it.key }@" as String ), it.value
+      ] }
+    }
+  }
+}
