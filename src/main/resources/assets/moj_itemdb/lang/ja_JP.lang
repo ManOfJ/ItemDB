@@ -1,0 +1,8 @@
+moj_itemdb.gui.cfg.title=%s Configurations
+moj_itemdb.gui.inventory.title=データベース インベントリ
+moj_itemdb.cfg.db_filepath=データベース ファイルパス
+moj_itemdb.cfg.db_filepath.tooltip=
+moj_itemdb.cfg.db_special_key=ItemDB 特殊キー
+moj_itemdb.cfg.db_special_key.tooltip=
+moj_itemdb.key.gui=データベース インベントリの開閉
+moj_itemdb.gui.stock_quantity=個数: %s
