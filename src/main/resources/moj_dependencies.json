@@ -1,0 +1,74 @@
+{
+  "libraries": [
+    {
+      "maven": {
+        "url": "http://moj-files.x0.com/maven/",
+        "groupId": "com.manofj.minecraft.moj_commons",
+        "artifactId": "mc_commons",
+        "version": "1.9.4-0.0.1",
+        "checksum": {
+          "md5": "ca14eaa00492922c75ba60f0c23b21dc",
+          "sha1": "0a33795f011e99db7f63ae26c008b80a3d891c44"
+        }
+      },
+      "serverreq": true,
+      "clientreq": true
+    },
+    {
+      "maven": {
+        "url": "central",
+        "groupId": "com.h2database",
+        "artifactId": "h2",
+        "version": "1.4.191",
+        "checksum": {
+          "md5": "dda3c5e5615f0e29a9bc6b14d20fb0c2",
+          "sha1": "dec3540178ea889b2871b0ed56db14bbec9cfdfc"
+        }
+      },
+      "serverreq": true,
+      "clientreq": true
+    },
+    {
+      "maven": {
+        "url": "central",
+        "groupId": "com.typesafe.slick",
+        "artifactId": "slick_2.11",
+        "version": "2.1.0",
+        "checksum": {
+          "md5": "7a0defead4d5a02c237d8a35968cc4f7",
+          "sha1": "50ec603c14e34862529ffbc191abb14d41824b9a"
+        }
+      },
+      "serverreq": true,
+      "clientreq": true
+    },
+    {
+      "maven": {
+        "url": "central",
+        "groupId": "org.slf4j",
+        "artifactId": "slf4j-api",
+        "version": "1.6.4",
+        "checksum": {
+          "md5": "75e1a2a3b84c59bf9d4f42de57a533b1",
+          "sha1": "2396d74b12b905f780ed7966738bb78438e8371a"
+        }
+      },
+      "serverreq": true,
+      "clientreq": true
+    },
+    {
+      "maven": {
+        "url": "central",
+        "groupId": "org.slf4j",
+        "artifactId": "slf4j-nop",
+        "version": "1.6.4",
+        "checksum": {
+          "md5": "27828078f71f006d4cc52cc34a399a35",
+          "sha1": "e576e513871997285f171d1c8b695185bd9c86cc"
+        }
+      },
+      "serverreq": true,
+      "clientreq": true
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+moj_itemdb.gui.cfg.title=%s Configurations
+moj_itemdb.gui.inventory.title=ItemDB Inventory
+moj_itemdb.cfg.db_filepath=Database filepath
+moj_itemdb.cfg.db_filepath.tooltip=
+moj_itemdb.cfg.db_special_key=ItemDB special key
+moj_itemdb.cfg.db_special_key.tooltip=
+moj_itemdb.key.gui=Open/Close ItemDB Inventory
+moj_itemdb.gui.stock_quantity=Quantity: %s

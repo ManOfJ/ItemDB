@@ -1,0 +1,22 @@
+[
+    {
+        "modid": "@modid@",
+        "name": "ItemDB",
+        "description": "",
+        "version": "@version@",
+        "mcversion": "1.9.4-12.17.0.1940",
+        "url": "http://manofj.com/minecraft",
+        "updateUrl": "http://manofj.com/minecraft/update?v=ItemDB",
+        "authorList": [
+            "Man of J"
+        ],
+        "credits": "",
+        "logoFile": "",
+        "screenshots": [
+            
+        ],
+        "dependencies": [
+            
+        ]
+    }
+]

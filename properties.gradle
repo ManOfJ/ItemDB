@@ -5,13 +5,15 @@ project.configure( settings.forge ) {
 }
 
 project.configure( settings.mod ) {
-  basePackage = 'com.manofj.minecraft.moj_itemdb'
-  id          = 'moj_itemdb'
-  name        = 'ItemDB'
-  version     = '1.9.4-1'
-  homepage    = 'http://manofj.com/minecraft'
-  updateJson  = 'http://manofj.com/minecraft/update?v=ItemDB'
-  authors     = [ 'Man of J' ]
+  basePackage  = 'com.manofj.minecraft.moj_itemdb'
+  internalName = 'ItemDB'
+
+  id           = 'moj_itemdb'
+  name         = 'ItemDB'
+  version      = '1.9.4-1'
+  homepage     = 'http://manofj.com/minecraft'
+  updateJson   = 'http://manofj.com/minecraft/update?v=ItemDB'
+  authors      = [ 'Man of J' ]
 }
 
 project.configure( settings.build ) {
